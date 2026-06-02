@@ -163,22 +163,56 @@ if uploaded_file:
 
         elif route == "visualization":
 
-            fig = generate_chart(
-                df,
-                question
-            )
+            try:
 
-            with st.chat_message("assistant"):
-
-                st.write(
-                    f"Generated {question}"
+                fig = generate_chart(
+                    df,
+                    question
                 )
 
-                st.plotly_chart(
-                    fig,
-                    use_container_width=True
-                )
+                with st.chat_message("assistant"):
+                    print("FIG =", fig)
+                    if fig is None:
 
+                        response = f"""
+                    Sorry, I cannot generate that chart yet.
+
+                    Currently supported charts:
+
+                    • Bar Chart
+                    • Pie Chart
+                    • Line Chart
+                    • Scatter Plot
+                    • Histogram
+                    • Box Plot
+                    """
+
+                        with st.chat_message("assistant"):
+                            st.write(response)
+
+                        st.session_state.messages.append(
+                            {
+                                "role": "assistant",
+                                "content": response
+                            }
+                        )
+
+                    else:
+
+                        st.plotly_chart(
+                            fig,
+                            use_container_width=True
+                        )
+
+            except Exception as e:
+
+                with st.chat_message("assistant"):
+
+                    st.error(f"Visualization Error: {e}")
+
+                
+
+                
         else:
 
             response = str(result["result"])
@@ -194,53 +228,53 @@ if uploaded_file:
             )
 
       
-with st.expander("🔍 Dataset Technical Details"):
+    with st.expander("🔍 Dataset Technical Details"):
 
-    st.write(insights)
+        st.write(insights)
 
-    st.subheader("Column Names")
-    st.write(profile["column_names"])
+        st.subheader("Column Names")
+        st.write(profile["column_names"])
 
-    st.subheader("Data Types")
-    st.json(profile["data_types"])
+        st.subheader("Data Types")
+        st.json(profile["data_types"])
 
-    st.subheader("Missing Values")
-    st.json(profile["missing_values"])
+        st.subheader("Missing Values")
+        st.json(profile["missing_values"])
 
-    st.subheader("Duplicate Rows")
-    st.write(profile["duplicate_rows"])
+        st.subheader("Duplicate Rows")
+        st.write(profile["duplicate_rows"])
 
-    st.subheader("Numerical Columns")
-    st.write(profile["numerical_columns"])
+        st.subheader("Numerical Columns")
+        st.write(profile["numerical_columns"])
 
-    st.subheader("Categorical Columns")
-    st.write(profile["categorical_columns"])
+        st.subheader("Categorical Columns")
+        st.write(profile["categorical_columns"])
 
-    st.subheader("Numeric Analysis")
+        st.subheader("Numeric Analysis")
 
-    st.json(
-        analysis["numeric_summary"]
-    )
+        st.json(
+            analysis["numeric_summary"]
+        )
 
-    st.subheader("Top Categories")
+        st.subheader("Top Categories")
 
-    st.json(
-        analysis["categorical_summary"]
-    )
+        st.json(
+            analysis["categorical_summary"]
+        )
 
-    st.subheader("Distribution")
+        st.subheader("Distribution")
 
-    st.plotly_chart(
-        charts["histogram"],
-        use_container_width=True,
-        key="agent_histogram"
-    )
+        st.plotly_chart(
+            charts["histogram"],
+            use_container_width=True,
+            key="agent_histogram"
+        )
 
-    st.subheader("Top Categories")
+        st.subheader("Top Categories")
 
-    st.plotly_chart(
-        charts["bar"],
-        use_container_width=True,
-        key="agent_bar"
-    )
+        st.plotly_chart(
+            charts["bar"],
+            use_container_width=True,
+            key="agent_bar"
+        )
 

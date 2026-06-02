@@ -3,7 +3,14 @@ import plotly.express as px
 from backend.agents.chart_spec_agent import (
     get_chart_spec
 )
-
+SUPPORTED_CHARTS = [
+    "bar",
+    "pie",
+    "line",
+    "scatter",
+    "histogram",
+    "box"
+]
 
 def generate_chart(df, question):
 
@@ -12,7 +19,7 @@ def generate_chart(df, question):
         list(df.columns)
     )
 
-    print(spec)
+    print("SPEC:", spec)
 
     chart_type = spec["chart_type"]
 
@@ -90,8 +97,27 @@ def generate_chart(df, question):
             y=y
         )
 
+    elif chart_type == "histogram":
+
+        x = spec["x"]
+
+        fig = px.histogram(
+            df,
+            x=x,
+            title=f"Distribution of {x}"
+        )
+
+    elif chart_type == "box":
+
+        x = spec["x"]
+
+        fig = px.box(
+            df,
+            y=x,
+            title=f"Box Plot of {x}"
+        )
     else:
 
         return None
-
+    print("Returning figure")
     return fig
