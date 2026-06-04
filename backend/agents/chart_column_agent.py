@@ -24,3 +24,16 @@ def detect_chart_column(
     response = generate_response(prompt)
 
     return response.strip()
+
+columns = [
+    "gender",
+    "age",
+    "salary"
+]
+
+print(
+    detect_chart_column(
+        "Create pie chart for gender",
+        columns
+    )
+)

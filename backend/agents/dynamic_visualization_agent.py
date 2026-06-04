@@ -25,7 +25,7 @@ def generate_chart(df, question):
 
     if chart_type == "pie":
 
-        column = spec["column"]
+        column = spec.get("column")
 
         fig = px.pie(
             df,
@@ -35,8 +35,11 @@ def generate_chart(df, question):
 
     elif chart_type == "bar":
 
-        x = spec["x"]
-        y = spec["y"]
+        x = spec.get("x")
+        y = spec.get("y")
+
+        if not x or not y:
+            return None
 
         if y.lower() == "count":
 
@@ -71,8 +74,11 @@ def generate_chart(df, question):
 
     elif chart_type == "line":
 
-        x = spec["x"]
-        y = spec["y"]
+        x = spec.get("x")
+        y = spec.get("y")
+
+        if not x or not y:
+            return None
 
         grouped = (
             df.groupby(x)[y]
@@ -88,8 +94,11 @@ def generate_chart(df, question):
 
     elif chart_type == "scatter":
 
-        x = spec["x"]
-        y = spec["y"]
+        x = spec.get("x")
+        y = spec.get("y")
+
+        if not x or not y:
+            return None
 
         fig = px.scatter(
             df,
@@ -99,7 +108,9 @@ def generate_chart(df, question):
 
     elif chart_type == "histogram":
 
-        x = spec["x"]
+        x = spec.get("x")
+        if not x:
+            return None     
 
         fig = px.histogram(
             df,
@@ -109,9 +120,11 @@ def generate_chart(df, question):
 
     elif chart_type == "box":
 
-        x = spec["x"]
-
+        x = spec.get("x")
+        if not x:
+            return None
         fig = px.box(
+
             df,
             y=x,
             title=f"Box Plot of {x}"

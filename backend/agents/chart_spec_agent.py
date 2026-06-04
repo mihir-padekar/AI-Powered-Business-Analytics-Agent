@@ -12,15 +12,56 @@ def get_chart_spec(question, columns):
     User Question:
     {question}
 
-    Return ONLY JSON.
+    Return ONLY valid JSON.
 
-    Example:
+    Examples:
+
+    For Pie Chart:
+
+    {{
+        "chart_type":"pie",
+        "column":"gender"
+    }}
+
+    For Histogram:
+
+    {{
+        "chart_type":"histogram",
+        "x":"age"
+    }}
+
+    For Box Plot:
+
+    {{
+        "chart_type":"box",
+        "x":"salary"
+    }}
+
+    For Scatter Plot:
+
+    {{
+        "chart_type":"scatter",
+        "x":"age",
+        "y":"income"
+    }}
+
+    For Bar Chart:
+
+    {{
+        "chart_type":"bar",
+        "x":"gender",
+        "y":"count"
+    }}
+
+    For Line Chart:
 
     {{
         "chart_type":"line",
         "x":"month",
-        "y":"revenue"
+        "y":"sales"
     }}
+
+    Return ONLY JSON.
     """
 
     response = generate_response(prompt)

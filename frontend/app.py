@@ -10,6 +10,7 @@ sys.path.append(
 from backend.agents.router_agent import route_question_llm
 from backend.graph.workflow import workflow
 from backend.agents.dynamic_visualization_agent import generate_chart
+from backend.agents.report_agent import generate_report
 import streamlit as st
 
 from backend.services.analysis_service import analyze_file
@@ -40,6 +41,29 @@ if "messages" not in st.session_state:
 uploaded_file = st.sidebar.file_uploader(
     "Upload CSV File",
     type=["csv"]
+)
+
+
+st.sidebar.divider()
+
+st.sidebar.subheader(
+    "💡 Suggested Questions"
+)
+
+q1 = st.sidebar.button(
+    "📊 Key Findings"
+)
+
+q2 = st.sidebar.button(
+    "📈 Age Distribution"
+)
+
+q3 = st.sidebar.button(
+    "📄 Executive Report"
+)
+
+q4 = st.sidebar.button(
+    "⚠️ Data Quality"
 )
 
 if not uploaded_file:
@@ -77,31 +101,39 @@ if uploaded_file:
     charts = result["charts"]
 
     insights = result["insights"]
-    
 
-    st.success(
-        f"""
-        Dataset Loaded Successfully
-
-        Rows: {profile['rows']}
-        Columns: {profile['columns']}
-        """
+    st.sidebar.subheader(
+        "📥 Export"
     )
-    from backend.agents.report_agent import generate_report
 
-    generate_report_btn = st.button(
+    generate_report_btn = st.sidebar.button(
         "Generate Executive Report"
     )
 
     if generate_report_btn:
 
-        report = generate_report(analysis)
+        report_data = {
+            "rows": profile["rows"],
+            "columns": profile["columns"],
+            "missing_values": profile["missing_values"],
+            "duplicate_rows": profile["duplicate_rows"]
+        }
 
-        st.subheader("Executive Report")
+        report = generate_report(
+            report_data,
+            insights
+        )
 
-        st.write(report)
+        from backend.utils.pdf_generator import (
+            create_pdf
+        )
 
-    st.divider()
+        pdf_file = create_pdf(
+            report
+        )
+
+        st.session_state["report"] = report
+        st.session_state["pdf_file"] = pdf_file
     st.success(
         f"""
         Dataset Loaded Successfully
@@ -110,8 +142,17 @@ if uploaded_file:
         Columns: {profile['columns']}
         """
     )
+    
 
-    st.divider()
+    
+    report_data = {
+        "rows": profile["rows"],
+        "columns": profile["columns"],
+        "missing_values": profile["missing_values"],
+        "duplicate_rows": profile["duplicate_rows"],
+        "insights": insights
+    }
+
 
     st.subheader("💬 Chat With DecisionPilot AI")
 
@@ -119,10 +160,46 @@ if uploaded_file:
 
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
+    question = None
+    if q1:
+        question = "What are the key findings?"
 
-    question = st.chat_input(
+    elif q2:
+        question = "Visualize age distribution"
+
+    elif q3:
+        question = "Generate executive report"
+
+    elif q4:
+        question = "Show data quality issues"
+
+    st.sidebar.divider()
+
+    
+    if "report" in st.session_state:
+
+        st.subheader("📄 Executive Report")
+
+        st.write(
+            st.session_state["report"]
+        )
+
+        with open(
+            st.session_state["pdf_file"],
+            "rb"
+        ) as file:
+
+            st.download_button(
+                label="Download PDF Report",
+                data=file,
+                file_name="Executive_Report.pdf",
+                mime="application/pdf"
+            )
+    chat_question = st.chat_input(
         "Ask a business question..."
     )
+    if chat_question:
+        question = chat_question
     if question:
 
         st.session_state.messages.append(
@@ -171,24 +248,23 @@ if uploaded_file:
                 )
 
                 with st.chat_message("assistant"):
-                    print("FIG =", fig)
+
                     if fig is None:
 
-                        response = f"""
-                    Sorry, I cannot generate that chart yet.
+                        response = """
+        Sorry, I cannot generate that chart yet.
 
-                    Currently supported charts:
+        Currently supported charts:
 
-                    • Bar Chart
-                    • Pie Chart
-                    • Line Chart
-                    • Scatter Plot
-                    • Histogram
-                    • Box Plot
-                    """
+        • Bar Chart
+        • Pie Chart
+        • Line Chart
+        • Scatter Plot
+        • Histogram
+        • Box Plot
+        """
 
-                        with st.chat_message("assistant"):
-                            st.write(response)
+                        st.write(response)
 
                         st.session_state.messages.append(
                             {
@@ -208,7 +284,9 @@ if uploaded_file:
 
                 with st.chat_message("assistant"):
 
-                    st.error(f"Visualization Error: {e}")
+                    st.error(
+                        f"Visualization Error: {e}"
+                    )
 
                 
 

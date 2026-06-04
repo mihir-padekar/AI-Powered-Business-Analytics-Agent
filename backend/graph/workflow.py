@@ -54,7 +54,8 @@ def visualization_node(state):
     return state
 
 def insight_node(state):
-
+    print("STATE KEYS:", state.keys())
+    print("STATE:", state)
     answer = answer_question(
     state["question"],
     state["analytics_output"]
@@ -104,7 +105,7 @@ graph.add_conditional_edges(
     {
         "analytics": "analytics",
         "visualization": "visualization",
-        "insights": "insights"
+        "insights": "analytics"
     }
 )
 
