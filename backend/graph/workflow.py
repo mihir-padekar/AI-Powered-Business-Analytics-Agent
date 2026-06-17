@@ -1,5 +1,5 @@
 from typing import TypedDict
-from backend.agents.router_agent import route_question_llm
+from backend.agents.router_agent import route_question
 from backend.agents.question_agent import answer_question
 from backend.agents.report_agent import generate_report
 from langgraph.graph import StateGraph
@@ -7,6 +7,7 @@ from langgraph.graph import StateGraph
 class AgentState(TypedDict):
     question: str
     analysis: dict
+    chat_history: str
     charts: dict
     route: str
     result: object
@@ -25,7 +26,7 @@ def report_node(state):
 
 def supervisor_node(state):
 
-    route = route_question_llm(
+    route = route_question(
         state["question"]
     )
 
@@ -58,7 +59,8 @@ def insight_node(state):
     print("STATE:", state)
     answer = answer_question(
     state["question"],
-    state["analytics_output"]
+    state["analytics_output"],
+    state["chat_history"]
 )      
     state["result"] = answer
 

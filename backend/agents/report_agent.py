@@ -2,7 +2,7 @@ from backend.services.llm_service import generate_response
 
 
 def generate_report(report_data, insights):
-
+    print(">>> REPORT AGENT CALLED")
     prompt = f"""
     You are preparing an Executive Business Report.
 

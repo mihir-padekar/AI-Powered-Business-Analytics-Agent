@@ -15,12 +15,9 @@ def analyze_file(file):
 
     charts = generate_charts(df)
 
-    insights = generate_insights(analysis)
-
     return {
         "df": df,
         "profile": profile,
         "analysis": analysis,
         "charts": charts,
-        "insights": insights
     }

@@ -2,7 +2,7 @@ from backend.services.llm_service import generate_response
 
 
 def generate_insights(analysis):
-
+    print(">>> INSIGHT AGENT CALLED")
     prompt = f"""
     You are a Senior Business Analyst.
 

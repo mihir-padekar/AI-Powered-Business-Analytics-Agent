@@ -7,10 +7,13 @@ sys.path.append(
     )
 )
 
-from backend.agents.router_agent import route_question_llm
+from backend.agents.router_agent import route_question
 from backend.graph.workflow import workflow
 from backend.agents.dynamic_visualization_agent import generate_chart
 from backend.agents.report_agent import generate_report
+from backend.agents.memory_agent import (
+    get_chat_history
+)   
 import streamlit as st
 
 from backend.services.analysis_service import analyze_file
@@ -66,6 +69,10 @@ q4 = st.sidebar.button(
     "⚠️ Data Quality"
 )
 
+q5 = st.sidebar.button(
+    "💡 Generate Insights"
+)
+
 if not uploaded_file:
 
     st.title("📊 DecisionPilot AI")
@@ -90,7 +97,41 @@ if not uploaded_file:
 
 if uploaded_file:
 
-    result = analyze_file(uploaded_file)
+    current_file = uploaded_file.name
+
+    if (
+        "uploaded_filename" not in st.session_state
+        or
+        st.session_state["uploaded_filename"]
+            != current_file
+    ):
+
+        print(">>> NEW FILE DETECTED")
+
+        st.session_state.analysis_result = (
+            analyze_file(uploaded_file)
+        )
+
+        st.session_state["uploaded_filename"] = (
+            current_file
+        )
+        st.session_state.messages = []
+
+        st.session_state.pop(
+            "insights",
+            None
+        )
+
+        st.session_state.pop(
+            "report",
+            None
+        )
+
+        st.session_state.pop(
+            "pdf_file",
+            None
+        )
+    result = st.session_state.analysis_result
 
     df = result["df"]
 
@@ -100,7 +141,6 @@ if uploaded_file:
 
     charts = result["charts"]
 
-    insights = result["insights"]
 
     st.sidebar.subheader(
         "📥 Export"
@@ -121,7 +161,10 @@ if uploaded_file:
 
         report = generate_report(
             report_data,
-            insights
+            st.session_state.get(
+                "insights",
+                "No insights generated yet."
+            )
         )
 
         from backend.utils.pdf_generator import (
@@ -149,8 +192,7 @@ if uploaded_file:
         "rows": profile["rows"],
         "columns": profile["columns"],
         "missing_values": profile["missing_values"],
-        "duplicate_rows": profile["duplicate_rows"],
-        "insights": insights
+        "duplicate_rows": profile["duplicate_rows"]
     }
 
 
@@ -173,6 +215,21 @@ if uploaded_file:
     elif q4:
         question = "Show data quality issues"
 
+    if q5:
+
+        from backend.agents.insight_agent import (
+            generate_insights
+        )
+
+        insights = generate_insights(
+            analysis
+        )
+        print("INSIGHTS GENERATED:")
+        st.session_state["insights"] = insights
+        st.success("Insights stored successfully")
+
+        st.write(st.session_state["insights"])
+
     st.sidebar.divider()
 
     
@@ -183,7 +240,7 @@ if uploaded_file:
         st.write(
             st.session_state["report"]
         )
-
+    
         with open(
             st.session_state["pdf_file"],
             "rb"
@@ -211,10 +268,13 @@ if uploaded_file:
 
         with st.chat_message("user"):
             st.write(question)
-
+        chat_history = get_chat_history(
+            st.session_state.messages
+        )
         result = workflow.invoke(
             {
                 "question": question,
+                "chat_history": chat_history,
                 "analysis": analysis,
                 "charts": charts,
                 "route": "",
@@ -304,11 +364,15 @@ if uploaded_file:
                     "content": response
                 }
             )
+        if "insights" in st.session_state:
 
+            st.subheader("💡 Business Insights")
+
+            st.write(
+                st.session_state["insights"]
+            )
       
     with st.expander("🔍 Dataset Technical Details"):
-
-        st.write(insights)
 
         st.subheader("Column Names")
         st.write(profile["column_names"])

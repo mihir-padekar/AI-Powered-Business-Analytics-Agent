@@ -4,7 +4,7 @@ from backend.services.llm_service import generate_response
 
 
 def get_chart_spec(question, columns):
-
+    print(">>> CHART SPEC AGENT CALLED")
     prompt = f"""
     Dataset Columns:
     {columns}
