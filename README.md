@@ -1,4 +1,4 @@
-<img width="1914" height="867" alt="image" src="https://github.com/user-attachments/assets/734fedf9-fc4c-4ef0-a2d0-6ff671a40afc" /># 📊 DecisionPilot AI
+# 📊 DecisionPilot AI
 
 An AI-powered Business Analytics Assistant that transforms raw CSV datasets into actionable business insights, visualizations, and executive reports using LLMs, LangGraph, and Streamlit.
 
