@@ -2,12 +2,6 @@ from backend.services.llm_service import generate_response
 
 
 def answer_question(question, analysis, chat_history=""):
-    print(">>> QUESTION AGENT CALLED")
-    print("\nQUESTION:")
-    print(question)
-
-    print("\nCHAT HISTORY:")
-    print(chat_history)
     relevant_analysis = {
         "numeric_summary": analysis["numeric_summary"],
         "categorical_summary": analysis["categorical_summary"]
