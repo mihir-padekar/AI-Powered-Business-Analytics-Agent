@@ -21,7 +21,7 @@ def generate_response(prompt,agent_name="Unknown Agent"):
     print("========================")
     
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="qwen/qwen3-27b",
         messages=[
             {
                 "role": "user",
